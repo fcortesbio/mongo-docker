@@ -1,63 +1,99 @@
-# MongoDB with Docker
+# MongoDB Docker with Replica Set
 
-A simple setup to run a MongoDB server using Docker Compose. It's configured to use environment variables for credentials, ensuring sensitive information is not hard-coded in the `docker-compose.yml` file.
+A Docker Compose setup for MongoDB 6.0 configured as a single-node replica set, enabling transaction support for development environments.
 
-## Getting Started
+## Features
 
-Follow these steps to get a local MongoDB instance up and running.
+- ✅ MongoDB 6.0 with replica set configuration
+- ✅ Transaction and session support
+- ✅ Automatic replica set initialization
+- ✅ Health checks and dependency management
+- ✅ Persistent data storage
+- ✅ Authentication enabled
 
-### Prerequisites
+## Quick Start
 
-Make sure you have Docker and Docker Compose installed on your system.
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/fcortesbio/mongo-docker.git
+cd mongo-docker
+```
+
+### 2. Prerequisites
+
+Make sure you have Docker and Docker Compose installed on your system:
 
 * [Install Docker](https://docs.docker.com/get-docker/)
 * [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-### Configuration
+### 3. Configure Environment
 
-The project uses an `.env` file to manage the database credentials.
+Copy the example environment file and customize if needed:
 
-1.  **Create your `.env` file:** Copy the example file to create your own configuration.
+```bash
+cp .env-example .env
+```
 
-    ```bash
-    cp .env-example .env
-    ```
+Default credentials (you can modify these in `.env`):
+- Username: `admin`
+- Password: `supersecret`
 
-2.  **Edit the `.env` file:** Open the newly created `.env` file and set your desired username and password.
+### 4. Deploy MongoDB
 
-    ```
-    MONGO_ROOT_USERNAME=admin
-    MONGO_ROOT_PASSWORD=supersecret
-    ```
-
-### Running the Server
-
-Start the MongoDB container using Docker Compose.
+Start the MongoDB replica set:
 
 ```bash
 docker-compose up -d
 ```
-The -d flag runs the containers in the background.
 
-### Connecting to MongoDB
-You can connect to the database using mongosh or any other MongoDB client.
+This will:
+- Start MongoDB with replica set configuration
+- Wait for MongoDB to be healthy
+- Automatically initialize the replica set named `rs0`
+- Create persistent storage for your data
 
-### Connection String
-The connection string for this local instance is:
+### 5. Verify Deployment
+
+Check if the containers are running:
 
 ```bash
-mongodb://<username>:<password>@localhost:27017
+docker-compose ps
 ```
 
-### Using [mongosh](https://www.mongodb.com/docs/mongodb-shell/)
-To connect using the mongosh shell, you can use a command like this, replacing the credentials with your own:
+View the logs to confirm replica set initialization:
 
 ```bash
-mongosh "mongodb://admin:supersecret@localhost:27017"
+docker-compose logs mongo-init
 ```
-**Note:** For security, it's best to use a connection string that prompts for the password instead of including it directly in the command. This prevents your password from being stored in your command history.
+
+You should see output indicating successful replica set initialization.
+
+## Connection Strings
+
+### For Applications
+
+Use this connection string format in your applications:
+
+```
+mongodb://admin:supersecret@localhost:27017/your_database?replicaSet=rs0&authSource=admin
+```
+
+### For Direct Connection
+
+Connect directly using MongoDB shell:
 
 ```bash
-mongosh "mongodb://admin@localhost:27017" --authenticationDatabase admin
+# Using Docker
+docker exec -it mongodb mongosh --username admin --password supersecret --authenticationDatabase admin
+
+# Or using local mongosh (if installed)
+mongosh "mongodb://admin:supersecret@localhost:27017/admin?replicaSet=rs0"
+```
+
+**Note:** For security in production, use connection strings that prompt for passwords:
+
+```bash
+mongosh "mongodb://admin@localhost:27017/admin?replicaSet=rs0" --authenticationDatabase admin
 # You will be prompted to enter the password securely.
 ```
