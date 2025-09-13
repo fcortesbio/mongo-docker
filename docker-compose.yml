@@ -12,6 +12,34 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./init-replica-set.js:/docker-entrypoint-initdb.d/init-replica-set.js:ro
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: |
+        mongosh --eval 'rs.status().ok'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mongo-init:
+    image: mongo:6.0
+    container_name: mongodb-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - ./init-replica-set.js:/init-replica-set.js:ro
+    command: >
+      mongosh --host mongodb:27017
+      --username ${MONGO_ROOT_USERNAME}
+      --password ${MONGO_ROOT_PASSWORD}
+      --authenticationDatabase admin
+      --file /init-replica-set.js
+    restart: "no"
 
 volumes:
   mongodb_data:
