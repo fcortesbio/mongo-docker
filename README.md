@@ -1,10 +1,10 @@
 # MongoDB Docker with Replica Set
 
-A Docker Compose setup for MongoDB 6.0 configured as a single-node replica set, enabling transaction support for development environments.
+A Docker Compose setup for MongoDB 8.0 configured as a single-node replica set, enabling transaction support for development environments.
 
 ## Features
 
-- ✅ MongoDB 6.0 with replica set configuration
+- ✅ MongoDB 8.0 with replica set configuration
 - ✅ Transaction and session support
 - ✅ Automatic replica set initialization
 - ✅ Health checks and dependency management
